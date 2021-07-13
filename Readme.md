@@ -57,6 +57,6 @@ If already installed check if new version is available.
 ```
 Deploy application
 ```
-    cd "LocationHistoryApi/src/LocationHistoryApi"
+    cd "LocationHistoryApi"
     dotnet lambda deploy-serverless
 ```
