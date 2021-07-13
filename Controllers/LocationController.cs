@@ -12,54 +12,60 @@ namespace LocationApi.Controllers
     public class LocationController : ControllerBase
     {
         private readonly ILogger<LocationController> _logger;
-        private readonly IRepository _repository;
+        private readonly IMongoRepository _mongoRepository;
 
-        public LocationController(ILogger<LocationController> logger, IRepository repository)
+        public LocationController(ILogger<LocationController> logger, IMongoRepository mongoRepository)
         {
             _logger = logger;
-            _repository = repository;
+            _mongoRepository = mongoRepository;
         }
 
         [HttpGet]
         [Route("get/history/{userName}")]
-        public async Task<IEnumerable<Location>> GetHistory(string userName)
+        public List<LocationModel> GetHistory(string userName)
         {
-            return await _repository.GetHistory(userName);
+            return _mongoRepository.GetHistory(userName);
         }
 
         [HttpGet]
         [Route("get/current/{userName}")]
-        public async Task<Location> GetCurrent(string userName)
+        public LocationModel GetCurrent(string userName)
         {
-            return await _repository.GetCurrent(userName);
+            return _mongoRepository.GetCurrent(userName);
         }
 
         [HttpGet]
         [Route("get/current")]
-        public async Task<IEnumerable<Location>> GetAllCurrent()
+        public List<LocationModel> GetAllCurrent()
         {
-            return await _repository.GetCurrent();
+            return _mongoRepository.GetAllCurrent();
         }
 
         [HttpGet]
         [Route("get/all")]
-        public async Task<IEnumerable<Location>> GetAll()
+        public List<LocationModel> GetAll()
         {
-            return await _repository.GetAll();
+            return _mongoRepository.SelectAll();
         }
 
         [HttpPost]
-        [Route("add")]
-        public async Task Add(Location model)
+        [Route("create")]
+        public LocationModel Create(CreateModel model)
         {
-            await _repository.Add(model);
+            var interpretedModel = new LocationModel {
+              UserName = model.UserName,
+              Latitude  = model.Latitude,
+              Longitude = model.Longitude,
+              CreatedDate = DateTime.Now
+            };
+            return _mongoRepository.Create(interpretedModel);
         }
 
         [HttpGet]
         [Route("get/near-by-vicinity")]
-        public async Task<List<ProximityLocation>> GetNearByVicinity(double latitude, double longitude, double proximity)
+        public List<ProximityLocation> GetNearByVicinity(double latitude, double longitude, double proximity)
         {
-            return await _repository.GetCurrentProximity(latitude, longitude, proximity);
+            return _mongoRepository.GetCurrentProximity(latitude, longitude, proximity);
         }
     }
 }

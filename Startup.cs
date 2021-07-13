@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using MongoDB.Driver;
 
 namespace LocationApi
 {
@@ -27,7 +28,17 @@ namespace LocationApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddTransient<IRepository, Repository>();
+            services.AddTransient<IMongoRepository, MongoRepository>();
+
+            var dbSettings = Configuration.GetSection("DatabaseSettings").Get<string>();
+
+            services.AddSingleton<IMongoClient>(c =>
+            {
+                return new MongoClient(dbSettings);
+            });
+
+            services.AddScoped(c => 
+                c.GetService<IMongoClient>().StartSession());
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "LocationApi", Version = "v1" });
