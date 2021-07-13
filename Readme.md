@@ -55,13 +55,6 @@ If already installed check if new version is available.
 ```
     dotnet tool update -g Amazon.Lambda.Tools
 ```
-
-Execute unit tests
-```
-    cd "LocationHistoryApi/test/LocationHistoryApi.Tests"
-    dotnet test
-```
-
 Deploy application
 ```
     cd "LocationHistoryApi/src/LocationHistoryApi"
