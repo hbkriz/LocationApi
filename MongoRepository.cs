@@ -78,6 +78,5 @@ namespace LocationApi
                 ), 2 ,MidpointRounding.AwayFromZero)
             }).Where(m => m.MilesAway <= proximity).ToList();
         }
-        
     }
 }
