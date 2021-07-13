@@ -1,71 +1,70 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using LocationHistoryApi.Repository;
+using LocationHistoryApi.Models;
 
-namespace LocationApi.Controllers
+namespace LocationHistoryApi.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
     public class LocationController : ControllerBase
     {
         private readonly ILogger<LocationController> _logger;
-        private readonly IMongoRepository _mongoRepository;
+        private readonly ILocationRepository _repository;
 
-        public LocationController(ILogger<LocationController> logger, IMongoRepository mongoRepository)
+        public LocationController(ILogger<LocationController> logger, ILocationRepository repository)
         {
             _logger = logger;
-            _mongoRepository = mongoRepository;
+            _repository = repository;
         }
 
         [HttpGet]
         [Route("get/history/{userName}")]
-        public List<LocationModel> GetHistory(string userName)
+        public List<Location> GetHistory(string userName)
         {
-            return _mongoRepository.GetHistory(userName);
+            return _repository.GetHistory(userName);
         }
 
         [HttpGet]
         [Route("get/current/{userName}")]
-        public LocationModel GetCurrent(string userName)
+        public Location GetCurrent(string userName)
         {
-            return _mongoRepository.GetCurrent(userName);
+            return _repository.GetCurrent(userName);
         }
 
         [HttpGet]
         [Route("get/current")]
-        public List<LocationModel> GetAllCurrent()
+        public List<Location> GetAllCurrent()
         {
-            return _mongoRepository.GetAllCurrent();
+            return _repository.GetAllCurrent();
         }
 
         [HttpGet]
         [Route("get/all")]
-        public List<LocationModel> GetAll()
+        public List<Location> GetAll()
         {
-            return _mongoRepository.SelectAll();
+            return _repository.SelectAll();
         }
 
         [HttpPost]
         [Route("create")]
-        public LocationModel Create(CreateModel model)
+        public Location Create(CreateLocation model)
         {
-            var interpretedModel = new LocationModel {
+            var interpretedModel = new Location {
               UserName = model.UserName,
               Latitude  = model.Latitude,
               Longitude = model.Longitude,
               CreatedDate = DateTime.Now
             };
-            return _mongoRepository.Create(interpretedModel);
+            return _repository.Create(interpretedModel);
         }
 
         [HttpGet]
         [Route("get/near-by-vicinity")]
         public List<ProximityLocation> GetNearByVicinity(double latitude, double longitude, double proximity)
         {
-            return _mongoRepository.GetCurrentProximity(latitude, longitude, proximity);
+            return _repository.GetCurrentProximity(latitude, longitude, proximity);
         }
     }
 }

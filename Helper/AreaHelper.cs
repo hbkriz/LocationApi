@@ -1,6 +1,6 @@
 using System;
 
-namespace LocationApi
+namespace LocationHistoryApi.Helper
 {
     public class Coordinates
     {

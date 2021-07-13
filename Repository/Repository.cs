@@ -1,58 +1,59 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Collections.Generic;
-using MongoDB.Bson.Serialization;
 using System.Linq;
 using System;
+using LocationHistoryApi.Models;
+using LocationHistoryApi.Helper;
 
-namespace LocationApi
+namespace LocationHistoryApi.Repository
 {
-    public interface IMongoRepository
+    public interface ILocationRepository
     {
-        List<LocationModel> SelectAll();
-        LocationModel Create(LocationModel model);
-        List<LocationModel> GetHistory(string userName);
-        LocationModel GetCurrent(string userName);
-        List<LocationModel> GetAllCurrent();
+        List<Location> SelectAll();
+        Location Create(Location model);
+        List<Location> GetHistory(string userName);
+        Location GetCurrent(string userName);
+        List<Location> GetAllCurrent();
         List<ProximityLocation> GetCurrentProximity(double startLatitude, double startLongitude, double proximity);
     }
 
-    public class MongoRepository : IMongoRepository
+    public class LocationRepository : ILocationRepository
     {
         protected static IMongoClient _client;
         protected static IMongoDatabase _database;
-        protected IMongoCollection<LocationModel> _collection;
+        protected IMongoCollection<Location> _collection;
 
-        public MongoRepository(IMongoClient client)
+        public LocationRepository(IMongoClient client)
         {
             _client = client;
             _database = _client.GetDatabase("location");
-            _collection = _database.GetCollection<LocationModel>("location_history");
+            _collection = _database.GetCollection<Location>("location_history");
         }
 
-        public List<LocationModel> SelectAll()
+        public List<Location> SelectAll()
         {
             var query = this._collection.Find(new BsonDocument()).ToListAsync();
             return query.Result;
         }
 
-        public LocationModel Create(LocationModel model)
+        public Location Create(Location model)
         {
             _collection.InsertOne(model);
             return model;
         }
 
-        public List<LocationModel> GetHistory(string userName)
+        public List<Location> GetHistory(string userName)
         {
             return this._collection.Find(new BsonDocument { { "UserName", userName } }).ToListAsync().Result.OrderByDescending(i => i.CreatedDate).ToList();
         }
 
-        public LocationModel GetCurrent(string userName)
+        public Location GetCurrent(string userName)
         {
             return GetHistory(userName).FirstOrDefault();
         }
 
-        public List<LocationModel> GetAllCurrent()
+        public List<Location> GetAllCurrent()
         {
             var result = this._collection.Find(new BsonDocument()).ToList();
             
@@ -68,6 +69,7 @@ namespace LocationApi
             var result = GetAllCurrent();
 
             return result.Select(i => new ProximityLocation {
+                Id = i.Id,
                 Latitude = i.Latitude, 
                 Longitude = i.Longitude,
                 UserName = i.UserName, 
