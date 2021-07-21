@@ -35,6 +35,11 @@ namespace LocationHistoryApi
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "LocationApi", Version = "v1" });
             });
+            
+            services.AddCors(c => 
+            {
+                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
@@ -44,7 +49,9 @@ namespace LocationHistoryApi
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            
+            app.useCors(options => options.AllowAnyOrigin());
+            
             app.UseSwagger();
             app.UseSwaggerUI(c => 
             {
